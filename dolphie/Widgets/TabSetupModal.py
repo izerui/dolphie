@@ -297,6 +297,9 @@ class TabSetupModal(ModalScreen):
         if not credential_profile:
             return
 
+        if credential_profile.host:
+            set_field("#host", f"{credential_profile.host}:{credential_profile.port or 3306}", default=self.host or "")
+
         set_field("#username", credential_profile.user, default=self.username or "")
         set_field("#password", credential_profile.password, default=self.password or "")
         set_field("#socket_file", credential_profile.socket, default=self.socket_file or "")
@@ -337,6 +340,9 @@ class TabSetupModal(ModalScreen):
 
     @on(Select.Changed, "#replay_file")
     def replay_file_changed(self, event: Select.Changed):
+        # When loading a replay file, disable recording and reset the checkbox
+        if event.value != Select.BLANK:
+            self.query_one("#record_for_replay", Checkbox).value = False
         self.update_inputs(disable=event.value != Select.BLANK, exclude=["#replay_file"])
 
     @on(RadioSet.Changed, "#ssl_mode")
